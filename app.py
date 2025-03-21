@@ -20,7 +20,14 @@ def login():
 
         if user and check_password_hash(user["password"], password):
             session["user"] = email
-            mongo.db.logs.insert_one({"email": email, "login_time": datetime.now()})
+            
+            # Store login time in logs collection
+            mongo.db.logs.insert_one({
+                "email": email,
+                "action": "login",
+                "timestamp": datetime.now()
+            })
+            
             return redirect(url_for("dashboard"))
         else:
             flash("Invalid credentials!", "danger")
@@ -72,8 +79,15 @@ def dashboard():
 @app.route("/logout")
 def logout():
     if "user" in session:
-        mongo.db.logs.insert_one({"email": session["user"], "logout_time": datetime.now()})
+        # Store logout time in logs collection
+        mongo.db.logs.insert_one({
+            "email": session["user"],
+            "action": "logout",
+            "timestamp": datetime.now()
+        })
+        
         session.pop("user", None)
+    
     return redirect(url_for("login"))
 
 if __name__ == "__main__":
