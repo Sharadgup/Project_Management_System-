@@ -3,35 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="{{ url_for('static', filename='scripts.js') }}" defer></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="dashboard-container">
-        <h2>Welcome, {{ user.fullname }}</h2>
-        <p>Department: {{ user.department }} | Role: {{ user.role }}</p>
-        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
 
-        <h3>Projects & Tasks</h3>
-        <div class="projects">
-            {% for project in projects %}
-                <div class="project-card">
-                    <h4>{{ project.name }}</h4>
-                    <p>Status: {{ project.status }}</p>
-
-                    <form method="POST" action="{{ url_for('update_task') }}">
-                        <input type="hidden" name="task_id" value="{{ project._id }}">
-                        <select name="status">
-                            <option value="Pending" {% if project.status == "Pending" %}selected{% endif %}>Pending</option>
-                            <option value="Approved" {% if project.status == "Approved" %}selected{% endif %}>Approved</option>
-                            <option value="Completed" {% if project.status == "Completed" %}selected{% endif %}>Completed</option>
-                        </select>
-                        <button type="submit">Update</button>
-                    </form>
-                </div>
-            {% endfor %}
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h2>Admin Dashboard</h2>
         </div>
+        <div class="navbar-right">
+            <div class="profile-dropdown">
+                <button class="profile-btn">
+                    <i class="fas fa-user"></i> {{ user.fullname }} <i class="fas fa-caret-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="#">Profile</a>
+                    <a href="#">Settings</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul>
+            <li><a href="#"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="#"><i class="fas fa-database"></i> Database</a></li>
+            <li><a href="#"><i class="fas fa-users"></i> Users</a></li>
+            <li><a href="#"><i class="fas fa-cogs"></i> Settings</a></li>
+        </ul>
+        <button class="sidebar-toggle" onclick="toggleSidebar()">⮜</button>
     </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="card-container">
+            <div class="card">
+                <h3>Total Users</h3>
+                <p>{{ total_users }}</p>
+            </div>
+            <div class="card">
+                <h3>Active Tasks</h3>
+                <p>{{ active_tasks }}</p>
+            </div>
+            <div class="card">
+                <h3>Total Projects</h3>
+                <p>{{ total_projects }}</p>
+            </div>
+        </div>
+
+        <!-- Projects Table -->
+        <h3>Project Overview</h3>
+        <table class="dashboard-table">
+            <thead>
+                <tr>
+                    <th>Project Name</th>
+                    <th>Status</th>
+                    <th>Deadline</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.status }}</td>
+                    <td>{{ project.deadline }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            let sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("collapsed");
+        }
+    </script>
+
 </body>
 </html>

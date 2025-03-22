@@ -5,12 +5,14 @@ from datetime import datetime
 import os
 
 app = Flask(__name__)
+
+# MongoDB Configuration
 app.config["MONGO_URI"] = "mongodb+srv://shardgupta65:Typer%401345@cluster0.sp87qsr.mongodb.net/employeeDB"
 app.secret_key = os.urandom(24)
 
 mongo = PyMongo(app)
 
-# Route: Home (Login)
+# Home (Login) Route
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -34,7 +36,7 @@ def login():
 
     return render_template("login.html")
 
-# Route: Register
+# Register Route
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -66,16 +68,16 @@ def register():
 
     return render_template("register.html")
 
-# Route: Dashboard
-@app.route("/dashboard")
-def dashboard():
+# Dashboard Route
+#@app.route("/dashboard")
+#def dashboard():
     if "user" in session:
         user_data = mongo.db.users.find_one({"email": session["user"]})
         return render_template("dashboard.html", user=user_data)
 
     return redirect(url_for("login"))
 
-# Route: Logout
+# Logout Route
 @app.route("/logout")
 def logout():
     if "user" in session:
@@ -90,8 +92,9 @@ def logout():
     
     return redirect(url_for("login"))
 
-# Import dashboard blueprint after initializing Flask
-from dashboard import dashboard_bp  
+# Import Dashboard Blueprint after initializing Flask
+from dashboard_routes import dashboard_bp  
+
 app.register_blueprint(dashboard_bp)
 
 if __name__ == "__main__":
