@@ -9,3 +9,11 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll("select").forEach(select => {
+        select.addEventListener("change", function () {
+            this.closest("form").submit();
+        });
+    });
+});
