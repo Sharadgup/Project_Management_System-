@@ -6,13 +6,21 @@ import os
 
 app = Flask(__name__)
 
-# MongoDB Configuration
+# ✅ MongoDB Configuration
 app.config["MONGO_URI"] = "mongodb+srv://shardgupta65:Typer%401345@cluster0.sp87qsr.mongodb.net/employeeDB"
 app.secret_key = os.urandom(24)
 
+# ✅ Initialize PyMongo once and register it in Flask extensions
 mongo = PyMongo(app)
+app.extensions["mongo"] = mongo  # Explicitly store PyMongo
 
-# Home (Login) Route
+# ✅ Import routes AFTER initializing Mongo
+from dashboard_routes import dashboard_bp  
+
+# ✅ Register Blueprint
+app.register_blueprint(dashboard_bp)
+
+# ✅ Home (Login) Route
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -23,20 +31,20 @@ def login():
         if user and check_password_hash(user["password"], password):
             session["user"] = email
             
-            # Store login time in logs collection
+            # ✅ Store login time in logs collection
             mongo.db.logs.insert_one({
                 "email": email,
                 "action": "login",
                 "timestamp": datetime.now()
             })
             
-            return redirect(url_for("dashboard"))
+            return redirect(url_for("dashboard.dashboard_home"))  
         else:
             flash("Invalid credentials!", "danger")
 
     return render_template("login.html")
 
-# Register Route
+# ✅ Register Route
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -68,20 +76,20 @@ def register():
 
     return render_template("register.html")
 
-# Dashboard Route
-#@app.route("/dashboard")
-#def dashboard():
+# ✅ Dashboard Route
+@app.route("/dashboard")
+def dashboard():
     if "user" in session:
         user_data = mongo.db.users.find_one({"email": session["user"]})
         return render_template("dashboard.html", user=user_data)
 
     return redirect(url_for("login"))
 
-# Logout Route
+# ✅ Logout Route
 @app.route("/logout")
 def logout():
     if "user" in session:
-        # Store logout time in logs collection
+        # ✅ Store logout time in logs collection
         mongo.db.logs.insert_one({
             "email": session["user"],
             "action": "logout",
@@ -92,10 +100,6 @@ def logout():
     
     return redirect(url_for("login"))
 
-# Import Dashboard Blueprint after initializing Flask
-from dashboard_routes import dashboard_bp  
-
-app.register_blueprint(dashboard_bp)
-
+# ✅ Run Flask App
 if __name__ == "__main__":
     app.run(debug=True)
