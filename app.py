@@ -3,7 +3,6 @@ from flask_pymongo import PyMongo
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
-import dashboard  # Import dashboard functions
 
 app = Flask(__name__)
 app.config["MONGO_URI"] = "mongodb+srv://shardgupta65:Typer%401345@cluster0.sp87qsr.mongodb.net/employeeDB"
@@ -91,9 +90,9 @@ def logout():
     
     return redirect(url_for("login"))
 
-# Dashboard Route (Handled in dashboard.py)
-app.add_url_rule("/dashboard", "dashboard", dashboard.dashboard)
-
+# Import dashboard blueprint after initializing Flask
+from dashboard import dashboard_bp  
+app.register_blueprint(dashboard_bp)
 
 if __name__ == "__main__":
     app.run(debug=True)
